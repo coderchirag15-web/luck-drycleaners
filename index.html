@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LUCKY DRYCLEANERS | Digital Business Card & Service Estimator</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            400: '#4ade80',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            cyan: '#06b6d4',
+                            purple: '#a855f7',
+                            amber: '#f59e0b',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #07090e;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+
+        /* Dynamic vibrant animated gradient background */
+        .vibrant-bg {
+            background: linear-gradient(-45deg, #090d16, #1e0933, #051d2d, #270335, #081124);
+            background-size: 400% 400%;
+            animation: gradient-x 16s ease infinite;
+        }
+
+        @keyframes gradient-x {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        /* Glassmorphism card effects */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.78);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .glass-pill {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* 3D Locked Flip System */
+        .perspective-container {
+            perspective: 1200px;
+        }
+
+        /* Fixed height container locks vertical alignment during flips */
+        .flip-card-wrapper {
+            position: relative;
+            width: 100%;
+            height: 310px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            will-change: transform;
+            transform-origin: center center;
+        }
+
+        .flip-card-inner.is-flipped {
+            transform: rotateY(180deg) !important;
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            -webkit-backface-visibility: hidden !important;
+            backface-visibility: hidden !important;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        .flip-card-front {
+            transform: rotateY(0deg);
+        }
+
+        .flip-card-back {
+            transform: rotateY(180deg) !important;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #07090e; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #a855f7, #06b6d4); border-radius: 9999px; }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; }
+        }
+    </style>
+</head>
+<body class="vibrant-bg min-h-screen text-slate-100 flex flex-col justify-between selection:bg-purple-500 selection:text-white">
+
+    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-y-[-120%] opacity-0 transition-all duration-300 pointer-events-none max-w-sm w-full">
+        <div class="glass-card bg-slate-900/90 text-white p-4 rounded-2xl shadow-2xl border border-purple-500/40 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-purple-500/20 border border-purple-400 flex items-center justify-center text-purple-300 font-bold">
+                <i class="fa-solid fa-check text-lg"></i>
+            </div>
+            <div>
+                <h5 id="toastTitle" class="text-xs font-bold text-purple-300 uppercase tracking-wider">Success</h5>
+                <p id="toastMsg" class="text-xs text-slate-200 mt-0.5">Operation completed successfully.</p>
+            </div>
+        </div>
+    </div>
+
+    <header class="w-full max-w-6xl mx-auto px-4 pt-6 pb-2 no-print">
+        <div class="glass-card rounded-2xl px-5 py-3 flex items-center justify-between border border-white/10 shadow-lg">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-cyan-400 flex items-center justify-center text-slate-950 font-black text-xl shadow-md">
+                    <i class="fa-solid fa-shirt"></i>
+                </div>
+                <div>
+                    <h1 class="font-heading font-black text-lg tracking-tight text-white leading-tight">LUCKY DRYCLEANERS</h1>
+                    <p class="text-[10px] text-cyan-300 font-medium">Kalu Ram Dhobi • Premium Care</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="scrollToEstimator()" class="px-3.5 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/30 text-purple-200 text-xs font-bold transition flex items-center gap-1.5 shadow">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span class="hidden sm:inline">Rate Estimator</span>
+                </button>
+                <a href="https://maps.app.goo.gl/w6UsbJPVJiMnkAtm8?g_st=iwb" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-400/30 text-cyan-200 text-xs font-bold transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span class="hidden sm:inline">Maps</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="flex-grow w-full max-w-6xl mx-auto px-4 py-6 space-y-10">
+
+        <section class="perspective-container w-full max-w-2xl mx-auto">
+            <div class="text-center mb-4">
+                <span class="text-xs uppercase font-extrabold tracking-widest text-cyan-400 bg-cyan-950/60 px-3 py-1 rounded-full border border-cyan-500/30 inline-flex items-center gap-1.5">
+                    <i class="fa-solid fa-arrows-rotate animate-spin" style="animation-duration: 6s;"></i> Tap Card to Flip & Interact
+                </span>
+            </div>
+
+            <!-- Fixed 3D Card Wrapper -->
+            <div class="flip-card-wrapper shadow-2xl">
+                <div id="mainBusinessCard" class="flip-card-inner">
+                    
+                    <!-- FRONT FACE -->
+                    <div class="flip-card-front glass-card border border-white/20 p-6 sm:p-8 flex flex-col justify-between cursor-pointer bg-gradient-to-br from-slate-900/90 via-slate-900/95 to-purple-950/70 shadow-2xl relative" onclick="toggleCardFlip()">
+                        <!-- Background Glow Accent -->
+                        <div class="absolute -top-12 -right-12 w-40 h-40 bg-purple-500/20 rounded-full blur-2xl pointer-events-none"></div>
+                        <div class="absolute -bottom-12 -left-12 w-40 h-40 bg-cyan-500/20 rounded-full blur-2xl pointer-events-none"></div>
+
+                        <!-- Top Row Header -->
+                        <div class="flex items-start justify-between relative z-10">
+                            <div>
+                                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/30 text-cyan-300 text-[10px] font-bold uppercase tracking-wider mb-2">
+                                    <i class="fa-solid fa-sparkles"></i> ISO Quality Standard Laundry
+                                </div>
+                                <h2 class="font-heading font-black text-2xl sm:text-3xl text-white tracking-tight leading-none">
+                                    LUCKY DRYCLEANERS
+                                </h2>
+                                <p class="text-xs text-slate-300 font-medium mt-1">Premium Dry Cleaning & Steam Press Services</p>
+                            </div>
+                            <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-purple-500 to-cyan-400 p-0.5 shadow-lg flex-shrink-0">
+                                <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center text-cyan-300 font-black text-2xl">
+                                    <i class="fa-solid fa-shirt"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Middle Owner & Contact Badges -->
+                        <div class="relative z-10 my-auto py-2">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i class="fa-solid fa-user-check text-purple-400 text-sm"></i>
+                                <span class="text-xs text-slate-300 uppercase tracking-wider font-semibold">Proprietor / Laundry Specialist:</span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="text-lg sm:text-xl font-extrabold text-white font-heading tracking-wide">Kalu Ram Dhobi</span>
+                                <span class="px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-[10px] font-bold">
+                                    <i class="fa-solid fa-circle-check"></i> Verified Expert
+                                </span>
+                            </div>
+
+                            <!-- Mobile Numbers Grid -->
+                            <div class="mt-3 flex flex-wrap gap-2" onclick="event.stopPropagation();">
+                                <a href="tel:8890528432" class="glass-pill px-3 py-1.5 rounded-xl hover:bg-white/15 transition text-xs font-bold text-cyan-300 flex items-center gap-2 border border-white/10">
+                                    <i class="fa-solid fa-phone text-emerald-400"></i> 8890528432
+                                </a>
+                                <a href="tel:8824332898" class="glass-pill px-3 py-1.5 rounded-xl hover:bg-white/15 transition text-xs font-bold text-cyan-300 flex items-center gap-2 border border-white/10">
+                                    <i class="fa-solid fa-phone text-emerald-400"></i> 8824332898
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Bottom Footer Info -->
+                        <div class="flex items-center justify-between border-t border-white/10 pt-3 relative z-10">
+                            <span class="text-[11px] text-slate-400 font-medium flex items-center gap-1.5">
+                                <i class="fa-solid fa-location-dot text-amber-400"></i> Quick Pickup & Delivery
+                            </span>
+                            <span class="text-xs font-bold text-purple-300 flex items-center gap-1 hover:underline">
+                                <span>Flip Details</span>
+                                <i class="fa-solid fa-rotate text-purple-400"></i>
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- BACK FACE -->
+                    <div class="flip-card-back glass-card border border-white/20 p-6 sm:p-8 flex flex-col justify-between cursor-pointer bg-gradient-to-br from-slate-900/95 via-purple-950/80 to-slate-950/95 shadow-2xl relative" onclick="toggleCardFlip()">
+                        
+                        <!-- Top Header -->
+                        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                            <div class="flex items-center gap-2">
+                                <div class="w-8 h-8 rounded-xl bg-purple-500/20 flex items-center justify-center text-purple-300 text-sm border border-purple-400/30">
+                                    <i class="fa-solid fa-address-card"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-heading font-extrabold text-sm text-white">Contact & Location Info</h3>
+                                    <p class="text-[10px] text-slate-400">LUCKY DRYCLEANERS • Kalu Ram Dhobi</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-bold text-cyan-300 flex items-center gap-1">
+                                <i class="fa-solid fa-rotate text-cyan-400"></i> Front Face
+                            </span>
+                        </div>
+
+                        <!-- Middle Content: Address & Quick Badges -->
+                        <div class="space-y-3 my-auto py-2" onclick="event.stopPropagation();">
+                            <div>
+                                <div class="text-[11px] uppercase tracking-wider font-bold text-slate-400 mb-1 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-map-pin text-amber-400"></i> Shop Location Link:
+                                </div>
+                                <p class="text-xs text-slate-200 leading-relaxed font-mono bg-slate-950/70 p-2.5 rounded-xl border border-white/10 flex items-center justify-between gap-2">
+                                    <span class="truncate">https://maps.app.goo.gl/w6UsbJPVJiMnkAtm8</span>
+                                    <button onclick="copyMapsLink()" class="px-2.5 py-1 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-[10px] font-bold transition flex-shrink-0">
+                                        <i class="fa-solid fa-copy"></i> Copy
+                                    </button>
+                                </p>
+                            </div>
+
+                            <!-- Service Badges -->
+                            <div class="flex flex-wrap gap-1.5">
+                                <span class="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-slate-300">
+                                    👔 Steam Press
+                                </span>
+                                <span class="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-slate-300">
+                                    🧥 Blazer Care
+                                </span>
+                                <span class="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-slate-300">
+                                    👗 Lehnga & Saree
+                                </span>
+                                <span class="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold text-slate-300">
+                                    🛏️ Blanket Wash
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons Grid -->
+                        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-white/10" onclick="event.stopPropagation();">
+                            <a href="tel:8890528432" class="py-2.5 px-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/40 text-emerald-200 text-xs font-bold text-center transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-phone text-emerald-400"></i>
+                                <span>Call</span>
+                            </a>
+                            <a href="https://wa.me/918890528432?text=Hello%20Kalu%20Ram%20Ji%20(Lucky%20Drycleaners),%20I%20have%20an%20inquiry%20regarding%20laundry%20services." target="_blank" rel="noopener noreferrer" class="py-2.5 px-2 rounded-xl bg-teal-600/30 hover:bg-teal-600/50 border border-teal-500/40 text-teal-200 text-xs font-bold text-center transition flex items-center justify-center gap-1.5">
+                                <i class="fa-brands fa-whatsapp text-teal-400"></i>
+                                <span>WhatsApp</span>
+                            </a>
+                            <a href="https://maps.app.goo.gl/w6UsbJPVJiMnkAtm8?g_st=iwb" target="_blank" rel="noopener noreferrer" class="py-2.5 px-2 rounded-xl bg-cyan-600/30 hover:bg-cyan-600/50 border border-cyan-500/40 text-cyan-200 text-xs font-bold text-center transition flex items-center justify-center gap-1.5">
+                                <i class="fa-solid fa-location-arrow text-cyan-400"></i>
+                                <span>Maps</span>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <section class="space-y-4">
+            <div class="text-center max-w-xl mx-auto">
+                <h3 class="font-heading text-xl sm:text-2xl font-bold text-white">Our Laundry Services</h3>
+                <p class="text-xs text-slate-300 mt-1">Professional fabric cleaning with utmost care by Kalu Ram Dhobi.</p>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                
+                <div class="glass-card rounded-2xl p-4 text-center border border-white/10 hover:border-purple-500/50 transition duration-300 group">
+                    <div class="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-300 flex items-center justify-center mx-auto text-xl mb-2 group-hover:scale-110 transition transform">
+                        👔
+                    </div>
+                    <h4 class="text-xs font-extrabold text-white">Steam Press</h4>
+                    <p class="text-[10px] text-slate-400 mt-1">Crisp & Wrinkle-Free</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-4 text-center border border-white/10 hover:border-cyan-500/50 transition duration-300 group">
+                    <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center mx-auto text-xl mb-2 group-hover:scale-110 transition transform">
+                        👕
+                    </div>
+                    <h4 class="text-xs font-extrabold text-white">Dry Cleaning</h4>
+                    <p class="text-[10px] text-slate-400 mt-1">Shirts, Pants & Suits</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-4 text-center border border-white/10 hover:border-amber-500/50 transition duration-300 group">
+                    <div class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center mx-auto text-xl mb-2 group-hover:scale-110 transition transform">
+                        🧥
+                    </div>
+                    <h4 class="text-xs font-extrabold text-white">Blazer / Suit</h4>
+                    <p class="text-[10px] text-slate-400 mt-1">Gentle Chemical Care</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-4 text-center border border-white/10 hover:border-pink-500/50 transition duration-300 group">
+                    <div class="w-12 h-12 rounded-2xl bg-pink-500/20 text-pink-300 flex items-center justify-center mx-auto text-xl mb-2 group-hover:scale-110 transition transform">
+                        👗
+                    </div>
+                    <h4 class="text-xs font-extrabold text-white">Lehnga & Saree</h4>
+                    <p class="text-[10px] text-slate-400 mt-1">Heavy Work Protection</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-4 text-center border border-white/10 hover:border-emerald-500/50 transition duration-300 group">
+                    <div class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center mx-auto text-xl mb-2 group-hover:scale-110 transition transform">
+                        ⚪
+                    </div>
+                    <h4 class="text-xs font-extrabold text-white">White Cloth Care</h4>
+                    <p class="text-[10px] text-slate-400 mt-1">Stain Treatment</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-4 text-center border border-white/10 hover:border-blue-500/50 transition duration-300 group">
+                    <div class="w-12 h-12 rounded-2xl bg-blue-500/20 text-blue-300 flex items-center justify-center mx-auto text-xl mb-2 group-hover:scale-110 transition transform">
+                        🛏️
+                    </div>
+                    <h4 class="text-xs font-extrabold text-white">Blanket Wash</h4>
+                    <p class="text-[10px] text-slate-400 mt-1">Covers & Comforters</p>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="estimatorSection" class="w-full max-w-6xl mx-auto px-0 py-2 no-print scroll-mt-6">
+            <div class="glass-card rounded-3xl p-6 sm:p-8 border border-white/15 relative overflow-hidden shadow-2xl">
+                <div class="relative z-10">
+                    <div class="text-center max-w-xl mx-auto mb-8">
+                        <span class="px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-widest bg-gradient-to-r from-amber-400 to-orange-500 text-slate-950 shadow-md">
+                            🧮 Instant Rate Estimator
+                        </span>
+                        <h2 class="font-heading text-2xl sm:text-3xl font-black text-white mt-2">
+                            Calculate Your Order Estimate
+                        </h2>
+                        <p class="text-xs text-slate-300 mt-1">Select counts to estimate total cost and directly book Kalu Ram Dhobi via WhatsApp.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Left Service Rows Container -->
+                        <div class="md:col-span-2 space-y-3">
+                            
+                            <!-- 1. Daily Ironing -->
+                            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-amber-500/30 transition">
+                                <div>
+                                    <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+                                        <span>1. Daily Ironing</span>
+                                    </h4>
+                                    <p class="text-[10px] text-amber-300 font-semibold mt-0.5">₹7 / piece approx.</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button onclick="updateQty('iron', -1)" class="w-8 h-8 rounded-xl bg-slate-800 text-slate-200 hover:bg-slate-700 font-bold transition flex items-center justify-center">-</button>
+                                    <span id="qty-iron" class="text-sm font-extrabold text-white w-6 text-center">0</span>
+                                    <button onclick="updateQty('iron', 1)" class="w-8 h-8 rounded-xl bg-amber-500 text-slate-900 font-bold hover:bg-amber-400 transition flex items-center justify-center">+</button>
+                                </div>
+                            </div>
+
+                            <!-- 2. Steam Ironing -->
+                            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-cyan-500/30 transition">
+                                <div>
+                                    <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+                                        <span>2. Steam Ironing</span>
+                                    </h4>
+                                    <p class="text-[10px] text-cyan-300 font-semibold mt-0.5">₹30 / piece approx.</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button onclick="updateQty('steam', -1)" class="w-8 h-8 rounded-xl bg-slate-800 text-slate-200 hover:bg-slate-700 font-bold transition flex items-center justify-center">-</button>
+                                    <span id="qty-steam" class="text-sm font-extrabold text-white w-6 text-center">0</span>
+                                    <button onclick="updateQty('steam', 1)" class="w-8 h-8 rounded-xl bg-cyan-400 text-slate-900 font-bold hover:bg-cyan-300 transition flex items-center justify-center">+</button>
+                                </div>
+                            </div>
+
+                            <!-- 4. Dry Cleaning WITH Dynamic Garment Dropdown -->
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-2xl bg-slate-900/80 border border-purple-500/30 hover:border-purple-400/50 transition gap-3">
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="text-xs font-bold text-white">4. Dry Cleaning</h4>
+                                        <span class="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 text-[9px] font-extrabold border border-purple-400/30 uppercase">Interactive</span>
+                                    </div>
+                                    <div class="mt-2 flex items-center gap-2">
+                                        <label for="dryItemSelect" class="text-[10px] text-slate-300 font-semibold">Select Garment:</label>
+                                        <select id="dryItemSelect" onchange="onDryItemChange()" class="bg-slate-950 text-purple-300 text-xs font-bold py-1 px-2.5 rounded-lg border border-purple-500/40 focus:outline-none focus:border-purple-400 cursor-pointer shadow">
+                                            <option value="100" data-name="Shirt / T-Shirt">1. Shirt / T-Shirt — ₹100</option>
+                                            <option value="50" data-name="Jeans / Pant">2. Jeans / Pant — ₹50</option>
+                                            <option value="300" data-name="Lehnga">3. Lehnga — ₹300</option>
+                                            <option value="150" data-name="Saree">4. Saree — ₹150</option>
+                                            <option value="150" data-name="Blazer">5. Blazer — ₹150</option>
+                                            <option value="100" data-name="White Cloth">6. White Cloth — ₹100</option>
+                                            <option value="50" data-name="Cover">7. Cover — ₹50</option>
+                                        </select>
+                                    </div>
+                                    <p class="text-[10px] text-purple-300 font-semibold mt-1" id="dryPriceDisplay">Current Rate: ₹100 / piece</p>
+                                </div>
+                                <div class="flex items-center gap-3 self-end sm:self-center">
+                                    <button onclick="updateQty('dry', -1)" class="w-8 h-8 rounded-xl bg-slate-800 text-slate-200 hover:bg-slate-700 font-bold transition flex items-center justify-center">-</button>
+                                    <span id="qty-dry" class="text-sm font-extrabold text-white w-6 text-center">0</span>
+                                    <button onclick="updateQty('dry', 1)" class="w-8 h-8 rounded-xl bg-purple-500 text-white font-bold hover:bg-purple-400 transition flex items-center justify-center">+</button>
+                                </div>
+                            </div>
+
+                            <!-- 5. Blanket Washing -->
+                            <div class="flex items-center justify-between p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-blue-500/30 transition">
+                                <div>
+                                    <h4 class="text-xs font-bold text-white flex items-center gap-1.5">
+                                        <span>5. Blanket Washing</span>
+                                    </h4>
+                                    <p class="text-[10px] text-blue-300 font-semibold mt-0.5">₹600 / piece approx.</p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <button onclick="updateQty('blanket', -1)" class="w-8 h-8 rounded-xl bg-slate-800 text-slate-200 hover:bg-slate-700 font-bold transition flex items-center justify-center">-</button>
+                                    <span id="qty-blanket" class="text-sm font-extrabold text-white w-6 text-center">0</span>
+                                    <button onclick="updateQty('blanket', 1)" class="w-8 h-8 rounded-xl bg-blue-500 text-white font-bold hover:bg-blue-400 transition flex items-center justify-center">+</button>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Right Total & Order Box -->
+                        <div class="bg-slate-950/90 rounded-2xl p-6 border border-white/15 flex flex-col justify-between text-center shadow-xl">
+                            <div>
+                                <span class="text-xs text-slate-400 uppercase font-bold tracking-wider">Estimated Total</span>
+                                <div class="text-4xl sm:text-5xl font-black text-amber-300 my-3 font-heading tracking-tight" id="totalPrice">₹0</div>
+                                <p class="text-[11px] text-slate-400 mb-4">*Final rate verified upon fabric inspection by Kalu Ram Dhobi.</p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <button onclick="sendWhatsAppOrder()" class="w-full py-3.5 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2">
+                                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                                    <span>Send Order on WhatsApp</span>
+                                </button>
+                                <a href="tel:8890528432" class="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-slate-200 border border-white/10 font-bold text-xs rounded-xl transition flex items-center justify-center gap-2">
+                                    <i class="fa-solid fa-phone text-emerald-400"></i>
+                                    <span>Direct Call: 8890528432</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="w-full border-t border-white/10 py-6 text-center no-print">
+        <div class="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
+            <div>
+                <span class="font-bold text-white">LUCKY DRYCLEANERS</span> • Proprietor: <span class="text-cyan-300 font-semibold">Kalu Ram Dhobi</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="tel:8890528432" class="hover:text-white transition"><i class="fa-solid fa-phone text-emerald-400"></i> 8890528432</a>
+                <a href="tel:8824332898" class="hover:text-white transition"><i class="fa-solid fa-phone text-emerald-400"></i> 8824332898</a>
+                <a href="https://maps.app.goo.gl/w6UsbJPVJiMnkAtm8?g_st=iwb" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-300 transition"><i class="fa-solid fa-location-dot text-amber-400"></i> Location</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Toggle main business card 3D flip state strictly in place
+        function toggleCardFlip() {
+            const cardInner = document.getElementById('mainBusinessCard');
+            cardInner.classList.toggle('is-flipped');
+        }
+
+        // Copy Maps Link logic
+        function copyMapsLink() {
+            const mapsUrl = "https://maps.app.goo.gl/w6UsbJPVJiMnkAtm8";
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(mapsUrl)
+                    .then(() => showToast("Copied!", "Google Maps link copied."))
+                    .catch(() => fallbackCopy(mapsUrl));
+            } else {
+                fallbackCopy(mapsUrl);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Copied!", "Link copied to clipboard.");
+            } catch (err) {
+                console.error(err);
+            }
+            document.body.removeChild(textArea);
+        }
+
+        function showToast(title, msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastTitle').innerText = title;
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('translate-y-[-120%]', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-[-120%]', 'opacity-0');
+            }, 3000);
+        }
+
+        function scrollToEstimator() {
+            document.getElementById('estimatorSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Estimator State & Dynamic Rate Logic
+        const quantities = { iron: 0, steam: 0, dry: 0, blanket: 0 };
+        const prices = { iron: 7, steam: 30, dry: 100, blanket: 600 };
+
+        // Handle dropdown item change for Dry Cleaning
+        function onDryItemChange() {
+            const select = document.getElementById('dryItemSelect');
+            prices.dry = parseInt(select.value, 10);
+            document.getElementById('dryPriceDisplay').innerText = `Current Rate: ₹${prices.dry} / piece`;
+            calculateTotal();
+        }
+
+        function updateQty(item, change) {
+            quantities[item] = Math.max(0, quantities[item] + change);
+            document.getElementById(`qty-${item}`).innerText = quantities[item];
+            calculateTotal();
+        }
+
+        function calculateTotal() {
+            let total = 0;
+            total += quantities.iron * prices.iron;
+            total += quantities.steam * prices.steam;
+            total += quantities.dry * prices.dry;
+            total += quantities.blanket * prices.blanket;
+            document.getElementById('totalPrice').innerText = `₹${total}`;
+        }
+
+        function sendWhatsAppOrder() {
+            const total = quantities.iron * prices.iron + quantities.steam * prices.steam + quantities.dry * prices.dry + quantities.blanket * prices.blanket;
+            if (total === 0) {
+                showToast("Select Items", "Please add at least 1 service item.");
+                return;
+            }
+            
+            const drySelect = document.getElementById('dryItemSelect');
+            const selectedDryItemName = drySelect.options[drySelect.selectedIndex].getAttribute('data-name');
+
+            let summary = `Hello LUCKY DRYCLEANERS (Kalu Ram Dhobi Ji),\nI would like to place a laundry order:\n\n`;
+            if (quantities.iron > 0) summary += `• Daily Ironing: ${quantities.iron} pcs (₹${quantities.iron * prices.iron})\n`;
+            if (quantities.steam > 0) summary += `• Steam Ironing: ${quantities.steam} pcs (₹${quantities.steam * prices.steam})\n`;
+            if (quantities.dry > 0) summary += `• Dry Cleaning [${selectedDryItemName}]: ${quantities.dry} pcs (₹${quantities.dry * prices.dry})\n`;
+            if (quantities.blanket > 0) summary += `• Blanket Washing: ${quantities.blanket} pcs (₹${quantities.blanket * prices.blanket})\n`;
+            summary += `\nEstimated Price: ₹${total}\n\nAddress for pickup: [Type your address here]`;
+
+            window.open(`https://wa.me/918890528432?text=${encodeURIComponent(summary)}`, '_blank');
+        }
+    </script>
+</body>
+</html>
